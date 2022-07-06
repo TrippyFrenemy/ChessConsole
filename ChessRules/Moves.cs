@@ -13,30 +13,31 @@ namespace ChessRules
         {
             this.board = board;
         }
-
         public bool CanMove(FigureMoving fm)
         {
             this.fm = fm;
             return CanMoveFrom() && CanMoveTo() && CanFigureMove();
         }
-        private bool CanMoveTo()
+        bool CanMoveTo()
         {
             return fm.to.OnBoard() &&
                    board.GetFigureAT(fm.to).GetColor() != board.moveColor;
         }
-        private bool CanMoveFrom()
+        bool CanMoveFrom()
         {
             return fm.from.OnBoard() &&
                    fm.figure.GetColor() == board.moveColor &&
                    board.GetFigureAT(fm.from) == fm.figure;
         }
-        private bool CanFigureMove()
+
+        bool CanFigureMove()
         {
             switch (fm.figure)
             {
                 case Figure.whiteKing:
                 case Figure.blackKing:
-                    return CanKingMove();
+                    return CanKingMove() || 
+                           CanKingCastle();
 
                 case Figure.whiteQueen:
                 case Figure.blackQueen:
@@ -64,10 +65,59 @@ namespace ChessRules
                     return false;
             }
         }
-
-        bool CanKingMove()//
+        bool CanKingMove()
         {
             return (fm.AbsDeltaX <= 1) && (fm.AbsDeltaY) <= 1;
+        }
+        bool CanKingCastle()
+        {
+            if(fm.figure == Figure.whiteKing)
+            {
+                if (fm.from == new Square("e1"))
+                if (fm.to == new Square("g1"))
+                if (board.canCastleH1)
+                if (board.GetFigureAT(new Square("h1")) == Figure.whiteRook)
+                if (board.GetFigureAT(new Square("f1")) == Figure.none)
+                if (board.GetFigureAT(new Square("g1")) == Figure.none)
+                if(!board.IsCheck())
+                if(!board.IsCheckAfterMove(new FigureMoving("Ke1f1")))
+                return true;
+
+                if (fm.from == new Square("e1"))
+                if (fm.to   == new Square("c1"))
+                if (board.canCastleA1)
+                if (board.GetFigureAT(new Square("a1")) == Figure.whiteRook)
+                if (board.GetFigureAT(new Square("d1")) == Figure.none)
+                if (board.GetFigureAT(new Square("c1")) == Figure.none)
+                if (board.GetFigureAT(new Square("b1")) == Figure.none)
+                if(!board.IsCheck())
+                if(!board.IsCheckAfterMove(new FigureMoving("Ke1d1")))
+                return true;
+            }
+            if (fm.figure == Figure.blackKing)
+            {
+                if (fm.from == new Square("e8"))
+                if (fm.to   == new Square("g8"))
+                if (board.canCastleH8)
+                if (board.GetFigureAT(new Square("h8")) == Figure.blackRook)
+                if (board.GetFigureAT(new Square("f8")) == Figure.none)
+                if (board.GetFigureAT(new Square("g8")) == Figure.none)
+                if(!board.IsCheck())
+                if(!board.IsCheckAfterMove(new FigureMoving("ke8f8")))
+                return true;
+
+                if (fm.from == new Square("e8"))
+                if (fm.to   == new Square("c8"))
+                if (board.canCastleA8)
+                if (board.GetFigureAT(new Square("a8")) == Figure.blackRook)
+                if (board.GetFigureAT(new Square("d8")) == Figure.none)
+                if (board.GetFigureAT(new Square("c8")) == Figure.none)
+                if (board.GetFigureAT(new Square("b8")) == Figure.none)
+                if(!board.IsCheck())
+                if(!board.IsCheckAfterMove(new FigureMoving("ke8d8")))
+                return true;
+            }
+            return false;
         }
         bool CanStraightMove()
         {
@@ -82,21 +132,22 @@ namespace ChessRules
             return false;
 
         }
-
-        bool CanKnightMove()//
+        bool CanKnightMove()
         {
             return ((fm.AbsDeltaX == 2) && (fm.AbsDeltaY) == 1) || ((fm.AbsDeltaX == 1) && (fm.AbsDeltaY) == 2);
         }
-        private bool CanPawnMove()
+        bool CanPawnMove()
         {
             if (fm.from.y < 1 || fm.from.y > 6)
                 return false;
             int stepY = fm.figure.GetColor() == Color.white ? +1 : -1;
             return CanPawnGo(stepY) || // +1
                    CanPawnJump(stepY) || // +2
-                   CanPawnEat(stepY); // take
+                   CanPawnEat(stepY) ||
+                   CanPawnEnpassant(stepY); // take
         }
-        private bool CanPawnGo(int stepY)
+
+        bool CanPawnGo(int stepY)
         {
             if (board.GetFigureAT(fm.to) == Figure.none)
                 if (fm.DeltaX == 0)
@@ -104,7 +155,7 @@ namespace ChessRules
                         return true;
             return false;
         }
-        private bool CanPawnJump(int stepY)
+        bool CanPawnJump(int stepY)
         {
             if (board.GetFigureAT(fm.to) == Figure.none)
                 if ((fm.from.y == 1 && stepY == +1) ||
@@ -115,7 +166,7 @@ namespace ChessRules
                                 return true;
             return false;
         }
-        private bool CanPawnEat(int stepY)
+        bool CanPawnEat(int stepY)
         {
             if (board.GetFigureAT(fm.to) != Figure.none)
                 if (fm.AbsDeltaX == 1)
@@ -123,5 +174,18 @@ namespace ChessRules
                         return true;
             return false;
         }
+        bool CanPawnEnpassant(int stepY)
+        {
+            if (fm.to == board.enpassant)
+                if (board.GetFigureAT(fm.to) == Figure.none)
+                    if (fm.DeltaY == stepY)
+                        if (fm.AbsDeltaX == 1)
+                            if ((stepY == +1 && fm.from.y == 4) ||
+                                (stepY == -1 && fm.from.y == 3))
+                                return true;
+            return false;
+
+        }
+
     }
 }

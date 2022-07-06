@@ -48,6 +48,7 @@
     <Compile Include="FigureMoving.cs" />
     <Compile Include="FigureOnSquare.cs" />
     <Compile Include="Moves.cs" />
+    <Compile Include="NextBoard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Square.cs" />
   </ItemGroup>

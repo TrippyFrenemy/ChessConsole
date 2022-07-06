@@ -1,4 +1,7 @@
-﻿namespace ChessRules
+﻿using System;
+using System.Collections.Generic;
+
+namespace ChessRules
 {
     class FigureOnSquare
     {
@@ -10,5 +13,7 @@
             this.figure = figure;
             this.square = square;
         }
+
+        
     }
 }

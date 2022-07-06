@@ -13,7 +13,6 @@ namespace ChessRules
             this.x = x;
             this.y = y;
         }
-
         public Square(string name)
         {
             if (name.Length == 2 &&

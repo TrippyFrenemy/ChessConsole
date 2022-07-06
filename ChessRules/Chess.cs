@@ -5,7 +5,9 @@ namespace ChessRules
     public class Chess
     {
         public string fen { get { return board.fen; } }
-        
+        public bool IsCheck { get; private set; }
+        public bool IsCheckMate { get; private set; }
+        public bool IsStaleMate { get; private set; }
         Moves moves;
         Board board;
         
@@ -13,12 +15,26 @@ namespace ChessRules
         {
             board = new Board(fen);
             moves = new Moves(board);
+            SetCheckFlags();
         }
 
-        Chess( Board board)
+        Chess(Board board)
         {
             this.board = board;
             moves = new Moves(board);
+            SetCheckFlags();
+        }
+
+        void SetCheckFlags()
+        {
+            IsCheck = board.IsCheck();
+            IsCheckMate = false;
+            IsStaleMate = false;
+            foreach (string moves in YieldValidMoves())
+                return;
+            if(IsCheck)
+                IsCheckMate=true;
+            else IsStaleMate=true;
         }
 
         public Chess Move(string move)
@@ -43,14 +59,13 @@ namespace ChessRules
         {
             foreach (FigureOnSquare fs in board.YieldMyFiguresOnSquares())
                 foreach (Square to in Square.YieldBoardSquares())
-                {
-                    FigureMoving fm = new FigureMoving(fs, to);
-                    if(moves.CanMove(fm))
-                        yield return fm.ToString();
-                }
-                
-            
+                    foreach (Figure promotion in fs.figure.YieldPromotions(to))
+                    {
+                        FigureMoving fm = new FigureMoving(fs, to, promotion);
+                        if(moves.CanMove(fm))
+                            if(!board.IsCheckAfterMove(fm))
+                            yield return fm.ToString();
+                    }           
         }
-
     }
 }

@@ -9,6 +9,8 @@ namespace ChessRules
         public Square to { get; private set; }
         public Figure promotion { get; private set; }
 
+        public static FigureMoving none = new FigureMoving();
+
         public FigureMoving(FigureOnSquare fs, Square to, Figure promotion = Figure.none)
         {
             this.figure = fs.figure;
@@ -28,11 +30,20 @@ namespace ChessRules
             else this.promotion = Figure.none;
         }
 
+        public FigureMoving()
+        {
+            figure = Figure.none;
+            from = Square.none;
+            to = Square.none;
+            promotion = Figure.none;
+        }
+
         public override string ToString()
         {
             return ((char)figure).ToString() +
                    from.Name +
-                   to.Name;
+                   to.Name +
+                   (promotion == Figure.none ? "" : ((char)promotion).ToString());
         }
 
         public int DeltaX { get { return to.x - from.x; }  }
@@ -43,5 +54,7 @@ namespace ChessRules
 
         public int SignX { get { return Math.Sign(DeltaX); } }
         public int SignY { get { return Math.Sign(DeltaY); } }
+
+        public Figure PlacedFigure { get { return promotion == Figure.none ? figure : promotion; } }
     }
 }
