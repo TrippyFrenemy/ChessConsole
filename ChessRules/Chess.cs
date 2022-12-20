@@ -37,12 +37,21 @@ namespace ChessRules
             else IsStaleMate=true;
         }
 
+        public bool IsValidMove(string move)
+        {
+            FigureMoving fm = new FigureMoving(move);
+            if (!moves.CanMove(fm))
+                return false;
+            if (board.IsCheckAfterMove(fm))
+                return false;
+            return true;
+        }
+
         public Chess Move(string move)
         {
             FigureMoving fm = new FigureMoving(move);
-            if (!moves.CanMove(fm)) 
+            if (!IsValidMove(move))
                 return this;
-            
             Board nextBoard = board.Move(fm);
             var nextChess = new Chess(nextBoard);
             return nextChess;
@@ -53,7 +62,13 @@ namespace ChessRules
             Square square = new Square(x, y);
             Figure figure = board.GetFigureAT(square);
             return figure == Figure.none ? '.' : (char)figure;
-        } 
+        }
+        public char GetFigureAt(string xy)
+        {
+            Square square = new Square(xy);
+            Figure figure = board.GetFigureAT(square);
+            return figure == Figure.none ? '.' : (char)figure;
+        }
 
         public IEnumerable<string> YieldValidMoves()
         {

@@ -8,7 +8,8 @@ namespace ChessDemo
     {
         static void Main(string[] args)
         {
-            Chess chess = new Chess("7k/8/5K2/8/8/6Q1/8/8 w - - 0 1");
+            Chess chess = new Chess();
+            
             while(true)
             {
                 Console.WriteLine(chess.fen);
@@ -20,6 +21,15 @@ namespace ChessDemo
                 chess = chess.Move(move);
             }
         }
+
+        //static int NextMoves(int step, Chess chess)
+        //{
+        //    if (step == 0) return 1;
+        //    int count = 0;
+        //    foreach (string moves in chess.YieldValidMoves())
+        //        count += NextMoves(step - 1, chess.Move(moves));
+        //    return count;
+        //}
 
         static string ChessToAscii(Chess chess)
         {
